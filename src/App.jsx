@@ -1,7 +1,9 @@
+import LoadMore from './components/loadMore/LoadMore';
+
 function App() {
   return (
-    <div>
-      <h1>Hello </h1>
+    <div className='App'>
+      <LoadMore />
     </div>
   );
 }
