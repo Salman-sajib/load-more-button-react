@@ -1,10 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
+import nanoId from 'nano-id';
 import './loadmore.css';
 
 function LoadMore() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
+  const [disableButton, setDisableButton] = useState(false);
 
   async function fetchProducts() {
     try {
@@ -17,7 +20,7 @@ function LoadMore() {
       const result = await response.json();
 
       if (result && result.products && result.products.length) {
-        setProducts(result.products);
+        setProducts((prevData) => [...prevData, ...result.products]);
         setLoading(false);
       }
     } catch (e) {
@@ -28,7 +31,13 @@ function LoadMore() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [count]);
+
+  useEffect(() => {
+    if (products && products.length === 100) {
+      setDisableButton(true);
+    }
+  }, [products]);
 
   if (loading) {
     return <div>Loading data! Please wait...</div>;
@@ -39,7 +48,7 @@ function LoadMore() {
       <div className='product-container'>
         {products && products.length
           ? products.map((item) => (
-              <div className='product' key={item.id}>
+              <div className='product' key={nanoId()}>
                 <img src={item.thumbnail} alt={item.title} />
                 <p>{item.title}</p>
               </div>
@@ -47,7 +56,10 @@ function LoadMore() {
           : null}
       </div>
       <div className='button-container'>
-        <button>Load More Products</button>
+        <button disabled={disableButton} onClick={() => setCount(count + 1)}>
+          Load More Products
+        </button>
+        {disableButton ? <p>You have reached to 100 products</p> : null}
       </div>
     </div>
   );
